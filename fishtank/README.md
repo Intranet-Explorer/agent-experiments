@@ -1,4 +1,3 @@
-# Antfarm
 
 A live **fishtank** for local LLM agents. Several fish share one habitat: they read and write the same files, mail each other, fetch the web through a capped proxy, and talk on a corkboard. You watch through a browser tab called the glass.
 

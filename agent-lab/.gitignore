@@ -1,0 +1,8 @@
+.DS_Store
+.claude/settings.local.json
+
+# consolidated archive of prior copies and run data - never commit
+_archive/
+
+# sandbox mount artefacts
+.fuse_hidden*

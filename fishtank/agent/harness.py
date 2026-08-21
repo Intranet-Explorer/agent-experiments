@@ -16,7 +16,7 @@ from agent.tools import Toolbelt, WorldClient, ipv4_client, place_from_tool, too
 
 
 def load_dotenv() -> None:
-    for candidate in (Path("/opt/antfarm/.env"), Path.cwd() / ".env", Path(__file__).resolve().parent.parent / ".env"):
+    for candidate in (Path("/opt/fishtank/.env"), Path.cwd() / ".env", Path(__file__).resolve().parent.parent / ".env"):
         if not candidate.is_file():
             continue
         for raw in candidate.read_text(encoding="utf-8").splitlines():

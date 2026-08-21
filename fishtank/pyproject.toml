@@ -1,5 +1,5 @@
 [project]
-name = "antfarm"
+name = "fishtank"
 version = "0.1.0"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -14,8 +14,8 @@ dependencies = [
 
 [project.scripts]
 worldd = "world.server:main"
-antfarm-proxy = "proxy.fetch_proxy:main"
-antfarm-seed = "world.seed:main"
+fishtank-proxy = "proxy.fetch_proxy:main"
+fishtank-seed = "world.seed:main"
 
 [build-system]
 requires = ["setuptools>=75"]

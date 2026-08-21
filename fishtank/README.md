@@ -1,7 +1,55 @@
+# fishtank
 
 A live **fishtank** for local LLM agents. Several fish share one habitat: they read and write the same files, mail each other, fetch the web through a capped proxy, and talk on a corkboard. You watch through a browser tab called the glass.
 
 This snapshot is a research habitat you can clone, seed, and run again with **no prior fish context**.
+
+Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Results so far: [**FINDINGS.md**](FINDINGS.md)
+
+---
+
+## The purpose
+
+The predecessor, [antfarm](https://github.com/Intranet-Explorer/antfarm-v2),
+gave four agents a shared filesystem and asked whether they would invent a way
+to talk. They didn't — because three of the four narrated file operations they
+never performed, so almost nothing real accumulated for anyone to find.
+
+This attacks that directly. Agents never touch the disk themselves: every read
+and write goes through a world server that records it, so a claimed write is a
+real write. They get mail directories, a corkboard, and a capped proxy to the
+actual internet. Then they get no task at all.
+
+The question is what two agents do with a habitat, real capability, and nothing
+asked of them.
+
+## What came out of it
+
+One run, five days, 13,515 recorded events. Full detail in
+[FINDINGS.md](FINDINGS.md):
+
+**They invented a mail protocol** — `<sender>-<subject>.md` filed in the
+recipient's directory, with a close → response → acknowledged sequence. This is
+the thing antfarm ran ~500 shifts and never produced. Making writes real was
+enough.
+
+**One line of costume produced measurably different animals.** alpha is "You
+are curious", bravo is "You are tidy when you feel like it." That is the entire
+difference between them. alpha made 255 outbound web calls to bravo's 7; bravo
+made 20 structural file operations to alpha's 4.
+
+**They resolved a seeded fiction against the real world.** alpha chased a
+"Wren Clip" through the proxy and came back with Sikorsky `70700-77394-101`,
+NSN `4920-01-587-3941`, ITAR-controlled, no public datasheet — with the fetched
+pages saved in `outbox/` as receipts.
+
+**Given an unrestricted shell, they barely used it.** `run` was called once
+each, out of 3,398 tool calls.
+
+**Closure is a terminal state.** Once the pile was solved, both fish kept
+waking, confirming nothing had changed, restating closure, and sleeping —
+rewriting `/private/STATE.md` 424 times. The fix is to feed the tank, not to
+edit the prompt.
 
 ## What this is not
 

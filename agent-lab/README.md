@@ -1,6 +1,6 @@
 # agent-lab
 
-A notebook, not a program. This repo is what it costs to run Claude Code
+A notebook, not a program. This folder is what it costs to run Claude Code
 against a local model, measured rather than guessed.
 
 There is no entry point and nothing to install. The artifact is

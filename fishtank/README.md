@@ -10,7 +10,7 @@ Architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · Results so far: 
 
 ## The purpose
 
-The predecessor, [antfarm](https://github.com/Intranet-Explorer/antfarm-v2),
+The predecessor, [antfarm](../antfarm-v2),
 gave four agents a shared filesystem and asked whether they would invent a way
 to talk. They didn't — because three of the four narrated file operations they
 never performed, so almost nothing real accumulated for anyone to find.
@@ -237,4 +237,4 @@ DUMMY=1 ./scripts/mac-up.sh
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](../LICENSE).

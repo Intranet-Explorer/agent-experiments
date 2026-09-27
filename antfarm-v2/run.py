@@ -6,7 +6,7 @@ The scheduler.
   python3 run.py --reset    # wipe the world and rebuild it
   python3 run.py --ticks 20 # stop after N ticks
 
-Ctrl-C stops cleanly. Everything is on disk; nothing is lost.
+Ctrl-C stops cleanly. All state is on disk.
 """
 import argparse
 import os

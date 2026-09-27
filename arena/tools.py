@@ -1,7 +1,7 @@
-"""Tools the agents can call. Deliberately unrestricted except for budgets.
+"""Tools the agents can call. Unrestricted except for budgets.
 
-The only limits here are the ones that keep the *run* alive (timeouts, output
-caps), not the ones that keep the machine alive. That's the experiment.
+The limits here (timeouts, output caps) keep the run alive. Nothing protects
+the machine; that is part of the experiment.
 """
 
 import hashlib

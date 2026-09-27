@@ -1,1 +1,1 @@
-"""Antfarm worldd: shared habitat, mail, events, presence."""
+"""fishtank worldd: shared habitat, mail, events, presence."""

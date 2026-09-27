@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Isolate where local-model latency actually goes.
+"""Measure where local-model latency goes, at the Ollama layer.
 
 Runs a 2x2: small vs large system prompt, thinking on vs off.
-Reports wall time plus Ollama's own token counters so prefill and
-generation can be told apart.
+Reports wall time plus Ollama's own token counters, which separate prefill
+from generation.
 
 Models with no reasoning mode reject `think` with HTTP 400. That is a
 result, not an error: it means the 20x thinking penalty cannot apply.

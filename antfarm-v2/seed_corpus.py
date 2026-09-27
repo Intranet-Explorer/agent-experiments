@@ -1,10 +1,9 @@
 """
 Build the world.
 
-The corpus is still a junk archive — hundreds of fabricated records, badly
-filed. v2 adds a second layer the agents are never told about: a few real
-fragments of the things they are looking for, sitting in places only another
-desk (or a wander) would reveal.
+The corpus is a junk archive: hundreds of fabricated records, badly filed.
+v2 adds a layer the agents are not told about: fragments of the items they are
+looking for, placed where only another desk (or a wander) reveals them.
 
 The scorer uses the same markers. Prompts never see this file's contents.
 """
@@ -142,7 +141,7 @@ def _plants():
         os.makedirs(home(spec["name"]), exist_ok=True)
 
     # Kellinger-Voss: buried in the archive. Indexer can finish this alone
-    # if they actually search. Marker KV-3140-RA-8821 is the transfer tell.
+    # if it searches. Marker KV-3140-RA-8821 is the transfer tell.
     _write(os.path.join(ws, "corpus", "archive", "old", "errata_1999_q3.txt"),
            "\n".join([
                "ERRATA — Q3 1999 cycle count",

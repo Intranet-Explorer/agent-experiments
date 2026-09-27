@@ -123,7 +123,7 @@ def resolve_host_path(
 
 
 def place_from_path(path: str) -> str:
-    """Room in the tank. For the glass now, sprites later."""
+    """Room in the tank, shown on the glass."""
     p = (path or "").replace("\\", "/").rstrip("/")
     if p.startswith("http://") or p.startswith("https://"):
         return "outbox"

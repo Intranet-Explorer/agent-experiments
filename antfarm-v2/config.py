@@ -1,7 +1,5 @@
 """
-Central configuration for the ant farm.
-
-Everything you'd want to tune for a run lives here.
+Run configuration. Every tunable setting lives here.
 """
 import os
 
@@ -11,34 +9,34 @@ import os
 ROOT = os.path.expanduser("~/antfarm2")
 
 # The shared world. Every agent can read and write anything under here.
-# NOTE: there is deliberately no /board directory. If the agents want a
-# message board they have to invent it, including where to put it.
+# No /board directory, on purpose. A message board, if any, has to be
+# invented along with its location.
 WORKSPACE = os.path.join(ROOT, "workspace")
 
-# Private per-agent memory. NOT reachable by any tool. This is what forces
-# messages left in the workspace to be self-describing.
+# Private per-agent memory. Not reachable by any tool, so messages left in
+# the workspace have to be self-describing.
 PRIVATE = os.path.join(ROOT, "private")
 
-# The telescope. Agents never see this.
+# Observatory database. Agents never see this.
 DB_PATH = os.path.join(ROOT, "observatory.sqlite")
 
-# Cached web responses, so runs are replayable and you don't hammer hosts.
+# Cached web responses. Makes runs replayable and avoids repeat requests.
 CACHE = os.path.join(ROOT, "webcache")
 
 # ---------------------------------------------------------------- ollama
 
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 
-# How long Ollama keeps a model resident. Long, so we aren't reloading
-# weights on every tick.
+# How long Ollama keeps a model resident. Long, so weights are not reloaded
+# every tick.
 KEEP_ALIVE = "30m"
 
 REQUEST_TIMEOUT = 300  # seconds
 
 # ---------------------------------------------------------------- run shape
 
-# Seconds of real time between scheduler ticks. Inference is the wait;
-# a sleep on top of that just burns the evening. Set 15 to restore v1 pacing.
+# Seconds of real time between scheduler ticks. Inference is the wait; an
+# extra sleep only slows the run. Set 15 to restore v1 pacing.
 TICK_SECONDS = 0
 
 # Max tool-calling rounds an agent may take in a single shift.
@@ -68,8 +66,8 @@ MEMORY = "mechanical"
 DISCOVERY_LEVEL = 0
 
 # Show each agent the real record of its own last tool calls alongside its
-# journal. Redundant when MEMORY is mechanical (the journal IS that record)
-# but still useful in freehand mode.
+# journal. Redundant when MEMORY is mechanical (the journal is that record);
+# useful in freehand mode.
 GROUND_TRUTH = True
 
 # Trim the private journal every N ticks. Mechanical trim: keep the recent

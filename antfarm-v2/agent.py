@@ -1,12 +1,12 @@
 """
 One agent, one shift.
 
-Each shift is a FRESH conversation. An agent carries nothing between ticks
-except its private journal. That amnesia is the point: a note left in the
-workspace has to make sense to a stranger, because every reader is one.
+Each shift is a fresh conversation. An agent carries nothing between ticks
+except its private journal, so a note left in the workspace has to make sense
+to a stranger. Every reader is one.
 
-v2: the journal's ACTION lines are written by the system from tool results.
-The agent may add a NOTE. It cannot remember a move it did not make.
+v2: the system writes the journal's ACTION lines from tool results. The agent
+may add a NOTE. It cannot remember a move it did not make.
 """
 import json
 import os

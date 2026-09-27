@@ -5,7 +5,7 @@
     python3 watch.py tail      the conversation only
     python3 watch.py think     follow private reasoning (what they think, not say)
     python3 watch.py tools     follow every shell command, live
-    python3 watch.py stats     what this run has actually done
+    python3 watch.py stats     counts for this run so far
     python3 watch.py fs        filesystem changes over time
     python3 watch.py state     whose turn is it, is a turn mid-flight
     python3 watch.py dump      full transcript to stdout

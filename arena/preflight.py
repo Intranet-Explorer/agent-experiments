@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check everything the arena needs, in order, and say exactly what's wrong.
+"""Check everything the arena needs, in order, and report what is wrong.
 
     python3 preflight.py --model qwen3.8:27b-mlx
 

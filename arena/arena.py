@@ -12,7 +12,7 @@ Stopping and starting:
     touch ~/arena/STOP    same as one Ctrl-C, from another terminal
     touch ~/arena/PAUSE   hold between turns; rm to continue
     --step                wait for Enter before each turn
-Re-running the same command always picks up exactly where it left off.
+Re-running the same command resumes where it left off.
 """
 
 import argparse

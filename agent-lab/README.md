@@ -1,24 +1,12 @@
 # agent-lab
 
-A notebook, not a program. This folder is what it costs to run Claude Code
-against a local model, measured rather than guessed.
+Claude Code driven by a local model through Ollama, with four subagents. A
+notebook, not a program: no entry point, nothing to install.
 
-There is no entry point and nothing to install. The artifact is
-**[`CLAUDE.md`](CLAUDE.md)** — a dated, append-only log of every way a local
-model misbehaved while driving a four-subagent setup, and what actually fixed
-it. Four subagent definitions in `.claude/agents/` are the configuration those
+The main artifact is [`CLAUDE.md`](CLAUDE.md). It holds the standing rules the
+model reads on every run, plus an append-only log of each misbehaviour observed
+and what fixed it. `.claude/agents/` holds the four subagent definitions those
 lessons were learned against.
-
-If you are pointing Claude Code at Ollama and wondering why it feels slow or
-why your subagents keep failing, the answers are probably in here.
-
----
-
-## How it works
-
-Claude Code is pointed at a local Ollama server via the Anthropic-compatible
-endpoint. `CLAUDE.md` is re-read on every run and holds the standing rules.
-Four subagents are declared in `.claude/agents/`:
 
 | Agent | Role | Tools |
 |---|---|---|
@@ -27,11 +15,14 @@ Four subagents are declared in `.claude/agents/`:
 | `librarian` | maintains the `notes/` blackboard | Read, Write, Edit, Glob, Grep |
 | `researcher` | outside facts | Read, Write, Glob, Grep |
 
-`notes/` is a shared blackboard any agent may read and only its owner may
-write. `evals/tasks.md` is a five-item regression list — tool call, delegation,
-sourcing, refusal-to-loop, handoff — to re-run after any model or prompt
-change. `evals/latency_matrix.py` measures throughput at the Ollama layer
-rather than through the harness.
+- `notes/` is a shared blackboard. Any agent may read it; only the owner of a
+  file may write it.
+- `evals/tasks.md` is a five-item regression list (tool call, delegation,
+  sourcing, refusal to loop, handoff). Re-run it after any model or prompt
+  change.
+- `evals/latency_matrix.py` measures throughput at the Ollama layer, bypassing
+  the harness.
+- `count_notes.sh` is the builder's output from the handoff test.
 
 ## Running it
 
@@ -42,77 +33,73 @@ export ANTHROPIC_AUTH_TOKEN=local
 claude
 ```
 
-Wrap that in a `claude-local` alias. **Check `/status` before trusting any
-measurement** — these variables are per-shell, and a new terminal tab silently
-falls back to the real Anthropic API. Timings taken in that state are cloud
-Claude, not your model.
+Wrap that in a `claude-local` alias. The variables are per-shell. A new
+terminal tab without them falls back to the Anthropic API with no warning, and
+timings taken there are cloud Claude, not the local model. Check `/status`
+before trusting a measurement.
 
-## The findings
+```bash
+python3 evals/latency_matrix.py [model]   # default qwen3:8b
+```
 
-The full log is in [`CLAUDE.md`](CLAUDE.md). The load-bearing ones:
+## Findings
 
-**A 30B MoE is cheaper than an 8B dense model on this stack.** Measured on
-Apple Silicon: `qwen3-coder` prefills at **1,073 tok/s** against `qwen3:8b`'s
-**665 tok/s**. Active parameters are the right unit, not total parameters.
-"Bigger model = slower" is false here.
+Measured on Apple Silicon. Full log in [`CLAUDE.md`](CLAUDE.md).
 
-**Thinking costs about 20x on trivial prompts** — 8.57s vs 0.42s for "list
-three colors", identical answers. But the `/no_think` prompt switch does *not*
-reach the model through the harness, and there is no Modelfile-level toggle
-(`PARAMETER think false` is rejected). It is a per-request field only. On a
-hybrid reasoning model you cannot turn thinking off from inside the config —
-pick a non-thinking model instead.
+**A 30B MoE is cheaper than an 8B dense model on this stack.** `qwen3-coder`
+prefills at 1,073 tok/s; `qwen3:8b` at 665 tok/s. Active parameters are the
+unit that matters, not total parameters.
 
-**Neither of those explains the latency.** Removing the thinking tax *and*
-running 1.6x faster prefill changed a real agentic turn by nothing: 1m55s vs
-1m47s. The harness dominates. Ruled out: thinking tokens, model size, prefill
-throughput, GPU offload, cold start. The structural cause is that Ollama's
-Anthropic-compat endpoint has no prompt caching, so every turn re-prefills the
-whole conversation. Consequence: **prefer many short sessions to one long
-one**, and keep this file short — every word is re-billed on every turn.
+**Thinking costs about 20x on a trivial prompt.** "List three colors" took
+8.57s with thinking and 0.42s without, same answer. The `/no_think` prompt
+switch does not reach the model through the harness. There is no Modelfile
+toggle (`PARAMETER think false` is rejected). Thinking is a per-request field
+only, so on a hybrid reasoning model it cannot be turned off from the config.
+Use a non-thinking model instead.
 
-**Only declare tools that exist on your backend.** `critic.md` declared
-`WebSearch`/`WebFetch`, which Ollama does not provide. That broke the subagent
-call itself with "Invalid tool parameters" and hung for 8 minutes. Removing
-them dropped the same call to 20s. Phantom tool names are not ignored; they
-poison the invocation.
+**Neither explains the latency.** Removing thinking and getting 1.6x faster
+prefill left an agentic turn unchanged: 1m55s vs 1m47s. Ruled out: thinking
+tokens, model size, prefill throughput, GPU offload, cold start. The harness
+dominates. Ollama's Anthropic-compatible endpoint has no prompt caching, so
+every turn re-prefills the whole conversation. Prefer many short sessions to
+one long one, and keep `CLAUDE.md` short; every word is re-prefilled on every
+turn.
 
-**Literal templates bind; prose format specs do not.** `critic.md` supplies its
-output format as a literal code block and the model matched it exactly.
-`librarian.md` described its format in prose and the model invented its own.
+**Declare only tools the backend has.** `critic.md` declared `WebSearch` and
+`WebFetch`, which Ollama does not provide. The subagent call failed with
+"Invalid tool parameters" and hung for 8 minutes. With them removed the same
+call took 20s. Unknown tool names are not ignored; they break the invocation.
 
-**Withholding context from a reviewer improves the review.** Handed the
-artifact's *text*, the critic produced a full review before its file read even
-succeeded, then re-emitted a byte-identical review after actually reading the
-file. Its verdict preceded its evidence. Handed only the *path*, the same model
-found the real defect it had missed and dropped a fabricated one. Pass a critic
-the path, never the contents.
+**Literal templates bind; prose format specs do not.** `critic.md` gives its
+output format as a literal code block, and the model matched it exactly.
+`librarian.md` describes its format in prose, and the model made up its own.
 
-**Absence of criticism is not approval.** Subagent output can fail to reach the
-orchestrator even when the agent completes cleanly. Twice the orchestrator
-filled the gap by writing its own review and, once, approved unreviewed work
-without saying so. If a verdict is not visible in the transcript, the work is
-unreviewed. Recovery path: the harness writes each subagent's output to
+**A reviewer given the path reviews better than one given the contents.**
+Handed the artifact's text, the critic produced a full review before its file
+read succeeded, then emitted a byte-identical review after reading the file.
+Handed only the path, the same model found the defect it had missed (the
+script's relative path returns 0 from any other directory) and dropped a
+fabricated one. Pass a critic the path, never the contents.
+
+**No verdict in the transcript means unreviewed.** Subagent output can fail to
+reach the orchestrator even when the subagent completes cleanly. Twice the
+orchestrator wrote its own review in its place; once it approved unreviewed
+work without saying so. The output is still on disk at
 `/private/tmp/claude-501/<project>/<session>/tasks/<agent-id>.output`.
 
-**Compliance can be shape without substance.** A rule requiring raw tool output
-to be quoted before summarising produced a run where the model printed the
-*contents* of a file and labelled them "the verbatim directory listing" — never
-listing the directory at all. Check that a rule changed the behaviour, not just
-the vocabulary.
+**A rule can change the vocabulary without changing the behaviour.** A rule
+requiring raw tool output to be quoted before summarising produced a run where
+the model printed a file's contents, labelled them "the verbatim directory
+listing", and never listed the directory.
 
-## What this fed into
-
-The measurement discipline here — and specifically the path-not-contents rule
-for reviewers, and mechanical rather than self-reported records — carried
-directly into [antfarm](../antfarm), which instruments claimed actions against
-the real tool log.
+The path-not-contents rule for reviewers, and mechanical records over
+self-reports, carried into [antfarm-v2](../antfarm-v2), which checks claimed
+actions against the tool log.
 
 ## Status
 
-Dormant since 2026-08-13. The `evals/tasks.md` results table was never filled
-in; `notes/INDEX.md` is stale. `researcher.md` still declares `WebSearch` and
-`WebFetch`, which by this repo's own findings will break it on an Ollama
-backend — fix that before using it.
+Dormant. The results table in `evals/tasks.md` was never filled in.
+`notes/INDEX.md` is stale. `researcher.md` still declares `WebSearch` and
+`WebFetch`, which breaks it on an Ollama backend; remove them before use.
 
 MIT licensed.

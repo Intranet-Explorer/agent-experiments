@@ -1,9 +1,8 @@
 """
-The telescope.
+The observatory: the run's independent record.
 
-Agents cannot see any of this. It exists so that after an eight hour run you
-can reconstruct exactly who touched what, when, and whether a fact crossed
-from one desk to another.
+Agents cannot see it. After a run it answers who touched what, when, and
+whether a fact crossed from one desk to another.
 """
 import hashlib
 import os

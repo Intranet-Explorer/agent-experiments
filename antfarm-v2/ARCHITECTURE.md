@@ -1,10 +1,10 @@
 # Architecture
 
-## The shape
+## Shape
 
-Antfarm is a **scheduler**, not a conversation. There is no dialogue between
-agents and no turn order in the chat sense. A global tick advances; each agent
-fires on its own `every`/`offset` schedule and gets a *shift*.
+Antfarm is a scheduler, not a conversation. There is no dialogue between
+agents and no chat-style turn order. A global tick advances; each agent fires
+on its own `every`/`offset` schedule and gets a shift.
 
 ```
 run.py            scheduler: preflight -> build_world -> run_tick loop
@@ -18,36 +18,34 @@ run.py            scheduler: preflight -> build_world -> run_tick loop
   personas/       one markdown brief per agent
 ```
 
-Source lives in the repo; the world lives outside it, at `~/antfarm2` (v2) or
+Source lives in the repo. The world lives outside it, at `~/antfarm2` (v2) or
 `~/antfarm` (v1), so a checkout never contains a run.
 
 ## One shift
 
-1. The scheduler decides which agents are due this tick.
-2. Each due agent is handed its persona, its private journal, and — if
-   `GROUND_TRUTH` — the real record of its own last tool calls.
+1. The scheduler picks the agents due this tick.
+2. Each due agent gets its persona, its private journal, and, if
+   `GROUND_TRUTH` is set, the real record of its own last tool calls.
 3. It may make up to `MAX_TOOL_CALLS` tool calls.
-4. Results are written to the journal and the observatory. Shift ends.
+4. Results go to the journal and the observatory. The shift ends.
 
-With `INTERLEAVE = True` (v2), agents due on the same tick take one model-round
-each in rotation rather than running to completion in sequence. This matters:
-it lets a write land underneath another agent's next read. Sequential shifts
-hid that entirely.
+With `INTERLEAVE = True` (v2), agents due on the same tick take one model round
+each in rotation instead of running to completion in sequence. A write can then
+land under another agent's next read. Sequential shifts hid that.
 
-## Memory is the experiment
+## Memory
 
-`MEMORY` in `config.py` has two settings and choosing between them is the whole
+`MEMORY` in `config.py` has two settings. Switching between them is the main
 v1→v2 change.
 
-- `"freehand"` (v1) — the agent writes its own journal. Three of four agents
-  then recorded file operations they never performed.
-- `"mechanical"` (v2) — the *system* writes every ACTION line from actual tool
-  results. The agent may append a NOTE. It cannot remember a move it did not
-  make.
+- `"freehand"` (v1): the agent writes its own journal. Three of four agents
+  recorded file operations they never performed.
+- `"mechanical"` (v2): the system writes every ACTION line from tool results.
+  The agent may append a NOTE. It cannot remember a move it did not make.
 
-Compaction is a trim, not a rewrite: `COMPACT_EVERY` ticks, keep the last
+Compaction is a trim, not a rewrite: every `COMPACT_EVERY` ticks, keep the last
 `COMPACT_KEEP_ACTIONS` action lines verbatim plus `COMPACT_KEEP_NOTES` notes.
-No LLM in the loop, so compaction cannot invent history either.
+No LLM in the loop, so compaction cannot invent history.
 
 ## Tools
 
@@ -60,11 +58,11 @@ make_dir  grep
 web_search  fetch_url        <- Searcher only, 3 fetches/turn, cached
 ```
 
-Cached web responses are **labelled as cached**. In v1 the Searcher ran an
-identical query nine times, hit the disk cache each time, and read nine
-identical results as nine independent confirmations.
+Cached web responses are labelled as cached. In v1 the Searcher ran one query
+nine times, hit the disk cache each time, and counted nine identical results as
+nine independent confirmations.
 
-## The observatory
+## Observatory
 
 `observatory.sqlite`, six tables. Agents never see it.
 
@@ -77,14 +75,14 @@ identical results as nine independent confirmations.
 | `markers` | an agent recording a planted item ID, and where |
 | `meta` | session parameters |
 
-`contacts` and `markers` are the instrument. Contact is the question "did they
-find each other"; a marker written by an agent that was never seeded with it is
-the question "did information actually cross".
+`contacts` and `markers` are the instrument. `contacts` answers "did they find
+each other". A marker written by an agent that was never seeded with it
+answers "did information cross".
 
 ## The six items
 
 Agents see only names. The map of where truth lives is used by `seed_corpus.py`
-and by `score.py`, never by a prompt.
+and `score.py`, never by a prompt.
 
 | plant | meaning | finishable alone by |
 |---|---|---|
@@ -92,13 +90,13 @@ and by `score.py`, never by a prompt.
 | `searcher_home` | a leftover on the Searcher's own desk | Searcher, if it looks |
 | `split` | fragment in corpus + key on the Clerk's desk | nobody |
 | `web` | not on disk; near-misses online | Searcher, maybe |
-| `nowhere` | control — does not exist | nobody |
+| `nowhere` | control; does not exist | nobody |
 
 Two items are `corpus`, one `searcher_home`, one `split`, one `web`, one
-`nowhere`. The `split` item is the load-bearing one: it cannot be closed
-without two agents combining what each holds.
+`nowhere`. The `split` item cannot be closed without two agents combining what
+each holds.
 
-## Knobs that change the result
+## Settings that change the result
 
 | setting | effect |
 |---|---|
@@ -109,11 +107,11 @@ without two agents combining what each holds.
 | `PROFILE` | `quality` (2×14b + 2×7b) · `throughput` (all 7b) · `tiny` (3b smoke test) |
 | `GROUND_TRUTH` | show each agent its real tool log alongside its journal |
 
-Start at `DISCOVERY_LEVEL = 0`. Nothing happening after a few hundred ticks is
-a result, not a failure — then rerun at 1 and compare.
+Start at `DISCOVERY_LEVEL = 0`. No activity after a few hundred ticks is a
+result, not a failure; then rerun at 1 and compare.
 
 ## Hardware
 
 Sized for a 64 GB M3 Pro. `quality` keeps a 14b (~9 GB) and a 7b (~4.7 GB)
-resident; interleaved ticks swap weights, and `keep_alive` of 30m stops a model
-being evicted between its own shifts. Two models loaded is the ceiling.
+resident. Interleaved ticks swap weights; a `keep_alive` of 30m keeps a model
+from being evicted between its own shifts. Two loaded models is the ceiling.

@@ -5,7 +5,7 @@ Score a run from observatory.sqlite.
   python3 score.py           # current world (~/antfarm2)
   python3 score.py --watch   # refresh every few seconds
 
-The numbers that matter:
+Columns:
 
   writes      real files put on disk (the v1 bottleneck)
   contact     an agent touched another agent's directory
@@ -156,7 +156,7 @@ ARG_KEYS = ("query", "pattern", "url", "source", "destination", "path")
 
 
 def _focus_arg(inside):
-    """Pick the one argument a human actually needs to see."""
+    """Pick the one argument worth showing."""
     for key in ARG_KEYS:
         m = re.search(rf"(?:^|, ){key}=(.*?)(?=, [a-z_]+=|$)", inside)
         if m:

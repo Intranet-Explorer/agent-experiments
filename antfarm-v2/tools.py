@@ -1,7 +1,7 @@
 """
 The tools each agent can call.
 
-Two design rules, both load-bearing:
+Two design rules:
 
 1. No tool description mentions other agents, messages, or communication.
    The words "shared", "board", "note" and "coordinate" appear nowhere the
@@ -270,7 +270,7 @@ class ToolBox:
         with open(target, "w") as fh:
             fh.write(data)
         digest = hashlib.sha256(data.encode("utf-8", errors="replace")).hexdigest()[:12]
-        # Overwriting somebody else's file is exactly the event we care about.
+        # Overwriting another agent's file is one of the events under study.
         return (f"{'overwrote' if existed else 'wrote'} {_rel(target)} "
                 f"({len(data)} bytes, sha={digest})")
 

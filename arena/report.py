@@ -6,8 +6,8 @@
     python3 report.py --since 1        # report from a specific turn
     python3 report.py --transcript     # also write runs/turns-N-M.md
 
-The point is that logging findings stays cheap. Run it after each session and
-the log keeps itself; the only thing you write by hand is the interpretation.
+Run it after each session. The only hand-written part is the interpretation
+in the Notes section.
 """
 
 import argparse

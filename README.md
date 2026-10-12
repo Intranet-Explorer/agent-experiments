@@ -1,5 +1,7 @@
 # agent-experiments
 
+![built with Claude × Rectangular](.github/badge.svg)
+
 Small experiments with local LLM agents, run on a Mac with Ollama. Each
 folder is self-contained, with its own README and findings.
 
